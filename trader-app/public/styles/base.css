@@ -1,0 +1,11 @@
+@import url('https://fonts.googleapis.com/css2?family=Orbitron&display=swap'); /* Orbitron font */
+
+:root {
+    --dark-bg: #1a1a1a;
+    --glow-green: #42b983;
+    --orbitron-font: 'Orbitron', sans-serif;
+    --glow-blue:  hsl(186 100% 69%);
+    --glow-black: rgba(0, 0, 0, 0.8);
+
+}
+

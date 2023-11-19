@@ -1,0 +1,35 @@
+@import url("base.css");
+@import url("https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css");
+
+
+body {
+  background-color: var(--dark-bg);
+  font-family: var(--orbitron-font);
+  font-size: 16px;
+  text-shadow: var(--glow-text-shadow);
+  line-height: 1.5;
+  margin: 0;
+  padding: 0;
+}
+
+.glowing-btn {
+        position: relative;
+        color: var(--glow-blue);
+        cursor: pointer;
+        padding-left: 0.5em;
+        padding-right: 0.5em;
+        border: 0.1em solid var(--glow-blue);
+        border-radius: 0.45em;
+        font-family: var(--orbitron-font);
+        font-size: 2em;
+        font-weight: 900;
+        background-color: transparent; 
+        -webkit-box-shadow: inset 0px 0px 0.5em 0px var(--glow-color),
+            0px 0px 0.5em 0px var(--glow-blue);
+        -moz-box-shadow: inset 0px 0px 0.5em 0px var(--glow-color),
+            0px 0px 0.5em 0px var(--glow-blue);
+        box-shadow: inset 0px 0px 0.5em 0px var(--glow-color),
+            0px 0px 0.5em 0px var(--glow-blue);
+        
+        width: fit-content; 
+}
