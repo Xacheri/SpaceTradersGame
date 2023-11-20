@@ -7,7 +7,7 @@ import FactionSelector from "@/components/FactionSelector.vue";
     <h1 class="mb-4 glow-green">Create A Space Trader</h1>
     <h2 class="mb-4 glow-blue">Select your Faction:</h2>
 
-    <FactionSelector />
+    <FactionSelector @faction-locked="(f) => factionToken = f"/>
     <button class="m-2 mt-4 fade-inflate-medium glowing-btn">
       <p>Generate</p>
     </button>
@@ -21,7 +21,7 @@ export default {
   data() {
     return {
       token: "",
-      factionToken: "",
+      factionToken: "" as string,
     };
   },
   methods: {
@@ -44,6 +44,7 @@ export default {
   },
 };
 </script>
+
 
 <style scoped>
 h1 {
