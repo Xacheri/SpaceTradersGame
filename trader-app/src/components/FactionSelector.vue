@@ -24,6 +24,9 @@
 <script lang="ts">
 import { defineComponent, ref } from "vue";
 import { useAdvisorStore } from "@/state/advisor-store";
+
+import Faction from "@/interfaces/Faction";
+
 import cosmic_logo from "@/assets/cosmic_logo.png";
 import galactic_logo from "@/assets/galactic_logo.png";
 import quantum_logo from "@/assets/quantum_logo.png";
@@ -32,21 +35,6 @@ import astro_logo from "@/assets/astro_logo.png";
 import corsairs_logo from "@/assets/corsairs_logo.png";
 import void_logo from "@/assets/void_logo.png";
 import obsidian_logo from "@/assets/obsidian_logo.png";
-
-interface Trait {
-  symbol: string;
-  name: string;
-  description: string;
-}
-
-interface Faction {
-  symbol: string;
-  name: string;
-  description: string;
-  headquarters: string;
-  traits: Trait[];
-  isRecruiting: boolean;
-}
 
 const SymbolToImageMap = new Map<string, string>([
   ["COSMIC", cosmic_logo],
@@ -69,6 +57,7 @@ export default defineComponent({
     return {
       factions: [] as Faction[],
       selectedFaction: {} as Faction,
+      lockedInFaction: {} as Faction
     };
   },
   methods: {
@@ -103,7 +92,7 @@ export default defineComponent({
         backgroundRepeat: "no-repeat",
         borderRadius: "1.5rem",
       };
-    },
+    }
   },
   async mounted() {
     await this.getFactions();
