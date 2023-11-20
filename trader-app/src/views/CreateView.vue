@@ -54,14 +54,4 @@ h1 {
   box-shadow: 0 0 10px var(--glow-green);
   color: var(--glow-green);
 }
-
-.glow-green {
-  color: var(--glow-green);
-  text-shadow: 0 0 10px var(--glow-green);
-}
-
-.glow-blue {
-  color: var(--glow-blue);
-  text-shadow: 0 0 10px var(--glow-blue);
-}
 </style>

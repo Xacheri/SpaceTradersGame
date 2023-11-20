@@ -1,10 +1,15 @@
 <template>
+  <p class="text-center glow-blue">
+    Select a faction to join. You can only join one faction per account.
+  </p>
   <div class="d-flex flex-column align-items-center faction-container">
     <Transition name="fcard" mode="out-in">
       <div
         class="faction-card card"
+        :class="[{ toggled: opacityToggle }]"
         :style="factionImage(selectedFaction.symbol)"
-        v-on:click="rotateFactions"
+        v-on:click="opacityToggle = !opacityToggle"
+        v-on:dblclick="rotateFactions"
         :key="selectedFaction.symbol"
       >
         <div class="card-body d-flex flex-column justify-content-center">
@@ -12,12 +17,20 @@
           <h6 class="hidden-text card-subtitle mb-2 text-muted">
             {{ selectedFaction.symbol }}
           </h6>
-          <p class="hidden-text card-text">
+          <p
+            :class="[{ toggled: opacityToggle }]"
+            class="hidden-text card-text"
+          >
             {{ selectedFaction.description }}
           </p>
         </div>
       </div>
     </Transition>
+    <GlowButton
+      text="Lock In Faction"
+      color="blue"
+      v-on:click="lockInFaction()"
+    ></GlowButton>
   </div>
 </template>
 
@@ -32,7 +45,8 @@ import astro_logo from "@/assets/astro_logo.png";
 import corsairs_logo from "@/assets/corsairs_logo.png";
 import void_logo from "@/assets/void_logo.png";
 import obsidian_logo from "@/assets/obsidian_logo.png";
-
+import aegis_logo from "@/assets/aegis_logo.png";
+import GlowButton from "@/components/GlowButton.vue";
 interface Trait {
   symbol: string;
   name: string;
@@ -57,18 +71,20 @@ const SymbolToImageMap = new Map<string, string>([
   ["CORSAIRS", corsairs_logo],
   ["VOID", void_logo],
   ["OBSIDIAN", obsidian_logo],
+  ["AEGIS", aegis_logo],
 ]);
 
 export default defineComponent({
   name: "FactionSelector",
   setup() {
     const advisorStore = useAdvisorStore();
-    return { ...advisorStore };
+    return { ...advisorStore, GlowButton };
   },
   data() {
     return {
       factions: [] as Faction[],
       selectedFaction: {} as Faction,
+      opacityToggle: false,
     };
   },
   methods: {
@@ -104,12 +120,18 @@ export default defineComponent({
         borderRadius: "1.5rem",
       };
     },
+    lockInFaction() {
+      console.log("Locking in faction");
+    },
   },
   async mounted() {
     await this.getFactions();
     if (this.factions.length > 0) {
       this.selectedFaction = this.factions[0];
     }
+  },
+  components: {
+    GlowButton,
   },
 });
 </script>
@@ -178,6 +200,14 @@ export default defineComponent({
   border-radius: 1.5rem;
 }
 .card:hover .hidden-text {
+  display: block;
+}
+
+.card.toggled .card-body {
+  background-color: rgba(192, 192, 192, 0.85);
+  border-radius: 1.5rem;
+}
+.card.toggled .hidden-text {
   display: block;
 }
 .hidden-text {
