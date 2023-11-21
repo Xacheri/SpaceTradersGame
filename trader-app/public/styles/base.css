@@ -6,6 +6,11 @@
     --orbitron-font: 'Orbitron', sans-serif;
     --glow-blue:  hsl(186 100% 69%);
     --glow-black: rgba(0, 0, 0, 0.8);
-
+    --glow-pink: rgb(255, 20, 147);
+    --glow-orange: rgb(255, 165, 0);
+    --glow-yellow: rgb(255, 255, 0);
+    --glow-purple: rgb(138, 43, 226);
+    --glow-red: rgb(255, 0, 0);
+    --glow-white: rgba(255, 255, 255, 1);
 }
 

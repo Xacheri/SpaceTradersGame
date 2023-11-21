@@ -1,8 +1,14 @@
 <template>
+  <h2 class="mb-4 glow-blue">
+    Select your Faction: {{ lockedInFaction.name }}
+  </h2>
   <p class="text-center glow-blue">
     Select a faction to join. You can only join one faction per account.
   </p>
-  <div class="d-flex flex-column align-items-center faction-container">
+  <div
+    id="slider-container"
+    class="d-flex flex-column align-items-center faction-container"
+  >
     <Transition name="fcard" mode="out-in">
       <div
         class="faction-card card"
@@ -27,15 +33,16 @@
       </div>
     </Transition>
     <GlowButton
-      text="Lock In Faction"
-      color="blue"
+      :text="lockedIn ? 'Unlock Faction' : 'Lock In Faction'"
+      :color="lockedIn ? 'red' : 'blue'"
       v-on:click="lockInFaction()"
     ></GlowButton>
+    <GlowButton v-if="lockedIn" :color="'blue'" text="Next"> </GlowButton>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from "vue";
+import { defineComponent, CSSProperties } from "vue";
 import { useAdvisorStore } from "@/state/advisor-store";
 
 import Faction from "@/interfaces/Faction";
@@ -50,7 +57,6 @@ import void_logo from "@/assets/void_logo.png";
 import obsidian_logo from "@/assets/obsidian_logo.png";
 import aegis_logo from "@/assets/aegis_logo.png";
 import GlowButton from "@/components/GlowButton.vue";
-
 
 const SymbolToImageMap = new Map<string, string>([
   ["COSMIC", cosmic_logo],
@@ -75,6 +81,7 @@ export default defineComponent({
       factions: [] as Faction[],
       selectedFaction: {} as Faction,
       lockedInFaction: {} as Faction,
+      lockedIn: false as boolean,
       opacityToggle: false,
     };
   },
@@ -98,11 +105,14 @@ export default defineComponent({
       }));
     },
     rotateFactions() {
+      if (this.lockedIn) {
+        return;
+      }
       const currentIndex = this.factions.indexOf(this.selectedFaction);
       const nextIndex = (currentIndex + 1) % this.factions.length;
       this.selectedFaction = this.factions[nextIndex];
     },
-    factionImage(symbol: string) {
+    factionImage(symbol: string): CSSProperties {
       return {
         backgroundImage: `url(${SymbolToImageMap.get(symbol)})`,
         backgroundSize: "stretch",
@@ -112,7 +122,17 @@ export default defineComponent({
       };
     },
     lockInFaction() {
+      if (this.lockedIn) {
+        console.log("Unlocking faction");
+        this.lockedIn = false;
+        this.lockedInFaction = {} as Faction;
+        this.$emit("faction-unlocked");
+        return;
+      }
       console.log("Locking in faction");
+      this.lockedIn = true;
+      this.lockedInFaction = this.selectedFaction;
+      this.$emit("faction-locked", this.lockedInFaction);
     },
   },
   async mounted() {
@@ -128,6 +148,10 @@ export default defineComponent({
 </script>
 
 <style scoped>
+#slider-container {
+  overflow-x: hidden;
+}
+
 .card {
   border-radius: 1.5rem;
   max-width: 300px;
