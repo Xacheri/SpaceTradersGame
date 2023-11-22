@@ -1,13 +1,14 @@
 <template>
-  <h2 class="mb-4 glow-blue">
+  <h2 class="mb-4 glow-blue p-1">
     Select your Faction: {{ lockedInFaction.name }}
   </h2>
-  <p class="text-center glow-blue">
+  <p class="text-center glow-blue p-1">
     Select a faction to join. You can only join one faction per account.
   </p>
+  <!-- TODO: Display all faction data after locking in -->
   <div
     id="slider-container"
-    class="d-flex flex-column align-items-center faction-container"
+    class="d-flex flex-column align-items-center faction-container container"
   >
     <Transition name="fcard" mode="out-in">
       <div
@@ -37,7 +38,6 @@
       :color="lockedIn ? 'red' : 'blue'"
       v-on:click="lockInFaction()"
     ></GlowButton>
-    <GlowButton v-if="lockedIn" :color="'blue'" text="Next"> </GlowButton>
   </div>
 </template>
 
@@ -86,6 +86,7 @@ export default defineComponent({
     };
   },
   methods: {
+    // Get the list of factions from the SpaceTraders API
     async getFactions(): Promise<any> {
       const options = {
         headers: {
@@ -100,10 +101,13 @@ export default defineComponent({
       const data = await response.json();
       console.log(data.data);
       this.factions = data.data.map((faction: Faction) => ({
+        // Map the faction data to a new object with an image property
         ...faction,
         image: SymbolToImageMap.get(faction.symbol),
       }));
+      this.selectedFaction = this.factions[0]; // Set the selected faction to the first faction in the list
     },
+    // Rotate the factions in the list
     rotateFactions() {
       if (this.lockedIn) {
         return;
@@ -112,6 +116,7 @@ export default defineComponent({
       const nextIndex = (currentIndex + 1) % this.factions.length;
       this.selectedFaction = this.factions[nextIndex];
     },
+    // Create the faction image style using SymbolToImageMap
     factionImage(symbol: string): CSSProperties {
       return {
         backgroundImage: `url(${SymbolToImageMap.get(symbol)})`,
@@ -121,6 +126,7 @@ export default defineComponent({
         borderRadius: "1.5rem",
       };
     },
+    // Lock in the selected faction
     lockInFaction() {
       if (this.lockedIn) {
         console.log("Unlocking faction");
@@ -135,6 +141,7 @@ export default defineComponent({
       this.$emit("faction-locked", this.lockedInFaction);
     },
   },
+  // Get the list of factions when the component is mounted
   async mounted() {
     await this.getFactions();
     if (this.factions.length > 0) {

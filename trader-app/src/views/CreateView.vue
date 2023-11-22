@@ -1,7 +1,3 @@
-<script lang="ts" setup>
-import Faction from "@/interfaces/Faction";
-</script>
-
 <template>
   <div>
     <h1 class="mb-4 glow-green">Create A Space Trader</h1>
@@ -9,34 +5,55 @@ import Faction from "@/interfaces/Faction";
       <component
         :is="components[0].name"
         v-bind="components[0].props"
-        @faction-locked="(f: Faction) => (trader.faction = f)"
-        @faction-unlocked="() => (trader.faction = {} as Faction)"
+        @faction-locked="(f: Faction) => (handleFactionLocked(f))"
+        @faction-unlocked="() => handleFactionUnlocked()"
+        @callsign-locked="(c: string) => handleCallsignLocked(c)"
+        @callsign-unlocked="() => handleCallsignUnlocked()"
+        @click="components[0].onclick"
       ></component>
     </Transition>
     <GlowButton
-      v-if="trader.faction !"
+      v-if="choiceLocked"
       :color="'blue'"
       text="Next"
-      :onclick="log"
+      :onclick="handleNextButton"
     ></GlowButton>
-    <div v-if="factionToken != ''">CALLSIGN SELECTOR</div>
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, CSSProperties } from "vue";
 import FactionSelector from "@/components/FactionSelector.vue";
+import CallsignSelector from "@/components/CallSignSelector.vue";
 import GlowButton from "@/components/GlowButton.vue";
 import Trader from "@/classes/Trader";
+import Faction from "@/interfaces/Faction";
+import CreateAgentResponse from "@/interfaces/CreateAgentResponse";
+import LoadingLogo from "@/components/LoadingLogo.vue";
+
 import { toRaw } from "vue"; // turn proxy object into raw object
 
 export default defineComponent({
   name: "CreateView",
+  setup() {
+    return { FactionSelector, GlowButton, LoadingLogo };
+  },
   data() {
+    interface Component {
+      name: string;
+      /* eslint-disable @typescript-eslint/no-explicit-any */
+      props: any; // props are variable in structure
+      onclick?: () => void;
+    }
+
     // define the components that will be rendered
     const components = [
       {
         name: "FactionSelector",
+        props: {} as any, // props are variable in structure
+      },
+      {
+        name: "CallsignSelector",
         props: {},
       },
       {
@@ -45,48 +62,100 @@ export default defineComponent({
           color: "green",
           text: "Generate",
         },
+        onclick: this.handleGenerate,
       },
-    ];
+    ] as Component[];
+
+    const loadingComponent = LoadingLogo;
 
     return {
       trader: {} as Trader,
       api_key: "" as string,
       factionToken: "" as string,
       components,
+      choiceLocked: false as boolean,
+      createTraderResponse: {} as CreateAgentResponse,
+      loadingComponent,
+      tempComponent: {} as Component,
     };
   },
   methods: {
-    generateToken() {
+    async handleGenerate() {
+      await this.waitLoadExecute(1000, this.createSpaceTradersUser);
+    },
+    async createSpaceTradersUser() {
       const options = {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          // external API : allow CORS
+          "Access-Control-Allow-Origin": "*",
         },
         body: JSON.stringify({
-          symbol: "Callsign",
-          faction: "Faction",
+          symbol: this.trader.callsign,
+          faction: this.trader.faction.symbol,
         }),
       };
-      fetch("https://api.spacetraders.io/v2/register", options)
-        .then((response) => response.json())
-        .then((response) => console.log(response))
-        .catch((err) => console.error(err));
-    },
-    log() {
-      if (this.trader.faction) {
-        // Perform some action when trader faction is defined
-        console.log("Trader faction is defined");
+      let response = await fetch(
+        "https://api.spacetraders.io/v2/register",
+        options
+      );
+      if (response.status === 200) {
+        this.createTraderResponse = await response.json();
+        this.api_key = this.createTraderResponse.token;
+        this.factionToken = this.createTraderResponse.faction.symbol;
+        console.log(this.createTraderResponse);
       } else {
-        // Perform some action when trader faction is not defined
-        console.log("Trader faction is not defined");
+        console.log(response);
       }
-
+    },
+    handleNextButton() {
       console.log(toRaw(this.trader));
+
+      this.choiceLocked = false;
+      // rotate the components array
+      // by pushing the first element to the end
+      // after removing it with shift()
+      this.components.push(this.components.shift()!);
+    },
+    handleFactionLocked(faction: Faction) {
+      this.choiceLocked = true;
+      this.trader.faction = faction;
+    },
+    handleFactionUnlocked() {
+      this.choiceLocked = false;
+      this.trader.faction = {} as Faction;
+    },
+    handleCallsignLocked(callsign: string) {
+      this.choiceLocked = true;
+      this.trader.callsign = callsign;
+    },
+    handleCallsignUnlocked() {
+      this.choiceLocked = false;
+      this.trader.callsign = "";
+    },
+    async waitLoadExecute(ms: number, func: Function) {
+      // temporarily set the component to the loading logo
+      this.tempComponent = this.components[0];
+
+      this.components[0].name = "LoadingLogo";
+      this.components[0].props = {
+        active: true,
+      };
+
+      // wait for ms milliseconds
+      await new Promise((resolve) => setTimeout(resolve, ms));
+
+      // reset the component to the original component
+      this.components[0] = this.tempComponent;
+      func();
     },
   },
   components: {
     FactionSelector,
     GlowButton,
+    CallsignSelector,
+    LoadingLogo,
   },
 });
 </script>

@@ -4,7 +4,6 @@ class Trader {
   name: string;
   callsign: string;
   faction: Faction;
-
   api_key: string;
 
   // constructor for Trader

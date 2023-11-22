@@ -1,7 +1,7 @@
 interface Trait {
-    symbol: string;
-    name: string;
-    description: string;
+  symbol: string;
+  name: string;
+  description: string;
 }
 
 export default Trait;
